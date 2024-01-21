@@ -2,11 +2,11 @@ package handler
 
 import (
 	"database/sql"
+	"forinter/database"
+	"forinter/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/floresl1/telemetry-service/database"
-	"github.com/floresl1/telemetry-service/model"
 )
 
 // TrackHandler обрабатывает запросы на /track.

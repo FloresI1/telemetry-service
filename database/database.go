@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"forinter/model"
 
 	_ "github.com/lib/pq"
 )
@@ -31,7 +32,7 @@ func InitDB() (*sql.DB, error) {
 }
 
 // InsertTelemetry вставляет телеметрические данные в базу данных.
-func InsertTelemetry(db *sql.DB, t Telemetry) error {
+func InsertTelemetry(db *sql.DB, t model.Telemetry) error {
 	_, err := db.Exec("INSERT INTO telemetry (user_id, screen_name, action_name) VALUES ($1, $2, $3)",
 		t.UserID, t.ScreenName, t.ActionName)
 	return err

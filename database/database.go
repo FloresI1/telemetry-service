@@ -7,7 +7,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const connectionString = "user=ваше_имя_пользователя password=ваш_пароль dbname=telemetrydb sslmode=disable"
+const connectionString = "user=postgres password=1 dbname=telemetrydb sslmode=disable"
 
 // InitDB инициализирует базу данных.
 func InitDB() (*sql.DB, error) {

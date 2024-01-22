@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
-	"telemetry-service/internal/database"
-	"telemetry-service/internal/handler"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"telemetry-service/internal/database"
+	"telemetry-service/internal/handler"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -17,9 +18,11 @@ import (
 const port = ":8080"
 
 func main() {
-	// Загрузка переменных окружения из файла .env
-	if err := godotenv.Load(); err != nil {
+	// Попытка загрузить .env из корневой директории
+	envPath := filepath.Join("..", "telemetry-service", ".env")
+	if err := loadEnv(envPath); err != nil {
 		log.Fatal("Error loading .env file:", err)
+
 	}
 
 	// Получение значения переменной окружения GIN_MODE
@@ -87,4 +90,11 @@ func main() {
 	} else {
 		log.Println("Server gracefully stopped")
 	}
+}
+func loadEnv(envPath string) error {
+	// Загрузка переменных окружения из файла .env
+	if err := godotenv.Load(envPath); err != nil {
+		return err
+	}
+	return nil
 }

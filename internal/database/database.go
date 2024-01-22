@@ -2,7 +2,7 @@ package database
 
 import (
 	"database/sql"
-	"forinter/model"
+	"telemetry-service/model"
 
 	_ "github.com/lib/pq"
 )
@@ -22,6 +22,7 @@ func InitDB() (*sql.DB, error) {
 			user_id INTEGER,
 			screen_name VARCHAR(255),
 			action_name VARCHAR(255),
+			device_id	INTEGER,
 			timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`)
 	if err != nil {
@@ -33,7 +34,9 @@ func InitDB() (*sql.DB, error) {
 
 // InsertTelemetry вставляет телеметрические данные в базу данных.
 func InsertTelemetry(db *sql.DB, t model.Telemetry) error {
-	_, err := db.Exec("INSERT INTO telemetry (user_id, screen_name, action_name) VALUES ($1, $2, $3)",
-		t.UserID, t.ScreenName, t.ActionName)
+	_, err := db.Exec(`
+		INSERT INTO telemetry (user_id, screen_name, action_name, device_id)
+		VALUES ($1, $2, $3, $4)`,
+		t.UserID, t.ScreenName, t.ActionName, t.DeviceID)
 	return err
 }

@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"forinter/database"
-	"forinter/handler"
+	"telemetry-service/internal/database"
+	"telemetry-service/internal/handler"
 	"log"
 	"net/http"
 	"os"
@@ -77,7 +77,7 @@ func main() {
 
 	log.Println("Shutting down server...")
 
-	// Создаем контекст с таймаутом для завершения работы сервера
+	// Контекст с таймаутом для завершения работы сервера
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 

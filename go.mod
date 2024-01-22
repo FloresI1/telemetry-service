@@ -1,4 +1,4 @@
-module forinter
+module telemetry-service
 
 go 1.21.4
 

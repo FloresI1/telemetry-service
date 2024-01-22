@@ -2,8 +2,8 @@ package handler
 
 import (
 	"database/sql"
-	"forinter/database"
-	"forinter/model"
+	"telemetry-service/internal/database"
+	"telemetry-service/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

@@ -18,10 +18,9 @@ func TrackHandler(db *sql.DB) func(c *gin.Context) {
 			return
 		}
 
-		// Добавлен контекст
+
 		ctx := c.Request.Context()
 
-		// Использование контекста при вызове функции InsertTelemetry
 		err := database.InsertTelemetry(ctx, db, t)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

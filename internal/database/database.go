@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"telemetry-service/model"
 
@@ -12,14 +13,14 @@ import (
 	_ "github.com/lib/pq"
 )
 
+const telemetryTableName = "telemetry"
+
 // InitDB инициализирует базу данных.
 func InitDB() (*sql.DB, error) {
-	// Загрузка переменных окружения из файла .env
 	if err := godotenv.Load(); err != nil {
 		return nil, fmt.Errorf("error loading .env file: %w", err)
 	}
 
-	// Получение значений переменных окружения для подключения к PostgreSQL
 	host := os.Getenv("POSTGRES_HOST")
 	port := os.Getenv("POSTGRES_PORT")
 	user := os.Getenv("POSTGRES_USER")
@@ -31,7 +32,6 @@ func InitDB() (*sql.DB, error) {
 		return nil, errors.New("missing required environment variables")
 	}
 
-	// Формирование строки подключения
 	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 
@@ -41,12 +41,12 @@ func InitDB() (*sql.DB, error) {
 	}
 
 	// Проверка соединения с базой данных
-	if err = db.Ping(); err != nil {
-		return nil, fmt.Errorf("error pinging database: %w", err)
+	err = db.Ping()
+	if err != nil {
+	log.Println("Not pinged")
 	}
-
 	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS telemetry (
+		CREATE TABLE IF NOT EXISTS ` + telemetryTableName + ` (
 			id SERIAL PRIMARY KEY,
 			user_id INTEGER,
 			screen_name VARCHAR(255),
@@ -55,20 +55,34 @@ func InitDB() (*sql.DB, error) {
 			timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`)
 	if err != nil {
-		return nil, fmt.Errorf("error creating telemetry table: %w", err)
+		log.Fatalf("error creating %s table: %v", telemetryTableName, err)
 	}
+
+	log.Println("Database initialized successfully")
 
 	return db, nil
 }
 
 // InsertTelemetry вставляет телеметрические данные в базу данных.
 func InsertTelemetry(ctx context.Context, db *sql.DB, t model.Telemetry) error {
-	_, err := db.ExecContext(ctx, `
-		INSERT INTO telemetry (user_id, screen_name, action_name, device_id)
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	_, err = tx.ExecContext(ctx, `
+		INSERT INTO `+telemetryTableName+` (user_id, screen_name, action_name, device_id)
 		VALUES ($1, $2, $3, $4)`,
 		t.UserID, t.ScreenName, t.ActionName, t.DeviceID)
 	if err != nil {
 		return fmt.Errorf("error inserting telemetry data: %w", err)
 	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("error committing transaction: %w", err)
+	}
+
+	log.Println("Telemetry data inserted successfully")
 	return nil
 }
